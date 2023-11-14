@@ -3,6 +3,17 @@ const FiixCmmsClient = require('fiix-cmms-client');
 var mqtt = require('mqtt');
 const { client } = require('./models/mqtt');
 const assets = require('./models/assets');
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello, World!\n');
+});
+
+server.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
 
 client.on('connect', function () {
     console.log('Connected to MQTT broker');
