@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/bf836a64-b078-4410-baa1-78947db03b94/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/serisconnection",
+    "appService.deploySubpath": "."
+}
