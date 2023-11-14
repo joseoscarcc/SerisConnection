@@ -59,4 +59,4 @@ jobs:
           app-name: 'OptixBroker'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C8ADA07BB9424FB88D74172ABD77BD52 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_52BEB2C9F7FB426BAAFF9F63D653660B }}
