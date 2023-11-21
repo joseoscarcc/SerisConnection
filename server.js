@@ -51,6 +51,26 @@ client.on('message', async function (topic, message) {
             if(running !== true){
                 await assetsMap[assetName].turnOffline()
             }
+            if(assetName == "Mixer") {
+                const mixer_vibration = assetsData[assetName].Vibration;
+                const vibration_units = 584076;
+                await assetsMap[assetName].changeReading(mixer_vibration, vibration_units)
+            }
+            if(assetName == "Oven") {
+                const oven_temperature = assetsData[assetName].Temperature;
+                const temperature_units = 587537;
+                await assetsMap[assetName].changeReading(oven_temperature, temperature_units);
+            }
+            if(assetName == "Packaging") {
+                const packaging_vibration = assetsData[assetName].Vibration;
+                const vibration_units = 584076;
+                await assetsMap[assetName].changeReading(packaging_vibration, vibration_units);
+            }
+            if(assetName == "Labeler") {
+                const labeler_pressure = assetsData[assetName].Pressure;
+                const pressure_units = 386290;
+                await assetsMap[assetName].changeReading (labeler_pressure, pressure_units)
+            }
         }else{
             const Connected = assetsData[assetName].Connected;
             if( Connected !== true) {
