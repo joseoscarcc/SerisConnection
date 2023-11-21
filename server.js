@@ -11,8 +11,8 @@ const server = http.createServer((req, res) => {
   res.end('Hello, World!\n');
 });
 
-server.listen(3000, () => {
-  console.log('Server running on port asign my assure: 3000');
+server.listen(3030, () => {
+  console.log('Server running on port asign my assure: 3030');
 });
 
 client.on('connect', function () {
@@ -72,9 +72,21 @@ client.on('message', async function (topic, message) {
                 await assetsMap[assetName].changeReading (labeler_pressure, pressure_units)
             }
         }else{
+            if (!assetsMap[assetName]) {
+            
+                try {
+                        assetsMap[assetName] = new assets.Asset(assetId);
+                    } catch (error) {
+                        console.error(`Error while creating asset and fetching data: ${error}`);
+                    }
+            }
             const Connected = assetsData[assetName].Connected;
             if( Connected !== true) {
-                await assetsMap[assetId].triggerEvent(227146);
+                if (assetsMap && assetsMap[assetName]) {
+                    await assetsMap[assetName].triggerEvent(227146);
+                  } else {
+                    console.error(`Asset '${assetName}' not found in assetsMap.`);
+                  }
             }
         }
             
