@@ -11,8 +11,8 @@ const server = http.createServer((req, res) => {
   res.end('Hello, World!\n');
 });
 
-server.listen(process.env.PORT, () => {
-  console.log('Server running on port asign my assure: ${process.env.PORT}');
+server.listen(3000, () => {
+  console.log('Server running on port asign my assure: 3000');
 });
 
 client.on('connect', function () {
