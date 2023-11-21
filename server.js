@@ -33,21 +33,38 @@ client.on('message', async function (topic, message) {
 
     for (const assetName in assetsData) {
         const assetId = assetsData[assetName].Asset_ID;
-
-        if (!assetsMap[assetId]) {
-            try {
-                assetsMap[assetId] = new assets.Asset(assetId);
-                await assetsMap[assetId].fetchAssetData();
-                await assetsMap[assetId].fetchLatestReadings();
-                assetCount++;
-            } catch (error) {
-                console.error(`Error while creating asset and fetching data: ${error}`);
+        if (assetName !== "PLC"){
+            const high_limit_condition = assetsData[assetName].High_Limit;
+            const running = assetsData[assetName].Running;
+            if (!assetsMap[assetName]) {
+            
+                try {
+                    assetsMap[assetName] = new assets.Asset(assetId);
+                    await assetsMap[assetName].fetchAssetData();
+                    await assetsMap[assetName].fetchLatestReadings();
+                    await assetsMap[assetName].setLimitCondition(high_limit_condition);  
+                    assetCount++;
+                } catch (error) {
+                    console.error(`Error while creating asset and fetching data: ${error}`);
+                }
+            }
+            if(running !== true){
+                assetsMap[assetName].turnOffline()
+            }
+        }else{
+            const Connected = assetsData[assetName].Connected;
+            if( Connected !== true) {
+                await assetsMap[assetId].triggerEvent(227146);
             }
         }
+            
     }
 
     console.log(`Received ${assetCount} new assets.`);
-    console.log(assetsMap);
+    const firstKey = Object.keys(assetsMap)[0];
+    const firstValue = assetsMap[firstKey];
+
+    console.log(assetsMap);    
 });
     
     // var asset = new assets.Asset(msg.id);
