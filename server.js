@@ -49,7 +49,7 @@ client.on('message', async function (topic, message) {
                 }
             }
             if(running !== true){
-                assetsMap[assetName].turnOffline()
+                await assetsMap[assetName].turnOffline()
             }
         }else{
             const Connected = assetsData[assetName].Connected;
