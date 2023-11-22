@@ -17,7 +17,7 @@ server.listen(3030, () => {
 
 client.on('connect', function () {
     console.log('Connected to MQTT broker');
-    client.subscribe('joetest');
+    client.subscribe('FTOptix');
     
 });
 
@@ -32,10 +32,10 @@ client.on('message', async function (topic, message) {
     let assetCount = 0;
 
     for (const assetName in assetsData) {
-        const assetId = assetsData[assetName].Asset_ID;
+        const assetId = parseInt(assetsData[assetName].Asset_ID);
         if (assetName !== "PLC"){
-            const high_limit_condition = assetsData[assetName].High_Limit;
-            const running = assetsData[assetName].Running;
+            const high_limit_condition = parseFloat(assetsData[assetName].High_Limit);
+            const running = Boolean(assetsData[assetName].Running);
             if (!assetsMap[assetName]) {
             
                 try {
@@ -52,22 +52,22 @@ client.on('message', async function (topic, message) {
                 await assetsMap[assetName].turnOffline()
             }
             if(assetName == "Mixer") {
-                const mixer_vibration = assetsData[assetName].Vibration;
+                const mixer_vibration = parseFloat(assetsData[assetName].Vibration);
                 const vibration_units = 584076;
                 await assetsMap[assetName].changeReading(mixer_vibration, vibration_units)
             }
             if(assetName == "Oven") {
-                const oven_temperature = assetsData[assetName].Temperature;
+                const oven_temperature = parseFloat(assetsData[assetName].Temperature);
                 const temperature_units = 587537;
                 await assetsMap[assetName].changeReading(oven_temperature, temperature_units);
             }
             if(assetName == "Packaging") {
-                const packaging_vibration = assetsData[assetName].Vibration;
+                const packaging_vibration = parseFloat(assetsData[assetName].Vibration);
                 const vibration_units = 584076;
                 await assetsMap[assetName].changeReading(packaging_vibration, vibration_units);
             }
             if(assetName == "Labeler") {
-                const labeler_pressure = assetsData[assetName].Pressure;
+                const labeler_pressure = parseFloat(assetsData[assetName].Pressure);
                 const pressure_units = 386290;
                 await assetsMap[assetName].changeReading (labeler_pressure, pressure_units)
             }
@@ -80,7 +80,7 @@ client.on('message', async function (topic, message) {
                         console.error(`Error while creating asset and fetching data: ${error}`);
                     }
             }
-            const Connected = assetsData[assetName].Connected;
+            const Connected = Boolean(assetsData[assetName].Connected);
             if( Connected !== true) {
                 if (assetsMap && assetsMap[assetName]) {
                     await assetsMap[assetName].triggerEvent(227146);

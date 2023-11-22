@@ -101,35 +101,53 @@ class Asset {
         if(this.high_limit_condition>reading){
             this.counter_reading++;
             if(this.counter_reading>=10){
-                const latestReading = this.latestReadings[readingUnits];
-                if (!latestReading) {
-                    throw new Error(`No latest reading found for units: ${readingUnits}`);
-                }
+                // const latestReading = this.latestReadings[readingUnits];
+                // if (!latestReading) {
+                //     throw new Error(`No latest reading found for units: ${readingUnits}`);
+                // }
 
-                const now = Date.now();
-                const oneHourInMilliseconds = 60 * 60 * 1000;
-                if (now - latestReading.dtmDateSubmitted <= oneHourInMilliseconds) {
-                    throw new Error(`Latest reading for units: ${readingUnits} was submitted less than an hour ago`);
-                } else {
-                    const time_value = Date.now();
-                    fiixCmmsClient.add({
-                        "className": "MeterReading",
-                        "fields": "intMeterReadingUnitsID, dblMeterReading, intAssetID, dtmDateSubmitted",
-                        "object": {
-                        "intMeterReadingUnitsID": readingUnits,
-                        "dblMeterReading": reading,
-                        "intAssetID": this.id,
-                        "dtmDateSubmitted": time_value,
-                        },
-                        "callback": function(ret) {
-                        if (!ret.error) {
-                            console.log(ret.objects);
-                        } else {
-                            console.error(ret.error);
-                        }
-                        }
-                    });
-                }
+                // const now = Date.now();
+                // const oneHourInMilliseconds = 60 * 60 * 1000;
+                // if (now - latestReading.dtmDateSubmitted <= oneHourInMilliseconds) {
+                //     throw new Error(`Latest reading for units: ${readingUnits} was submitted less than an hour ago`);
+                // } else {
+                //     const time_value = Date.now();
+                //     fiixCmmsClient.add({
+                //         "className": "MeterReading",
+                //         "fields": "intMeterReadingUnitsID, dblMeterReading, intAssetID, dtmDateSubmitted",
+                //         "object": {
+                //         "intMeterReadingUnitsID": readingUnits,
+                //         "dblMeterReading": reading,
+                //         "intAssetID": this.id,
+                //         "dtmDateSubmitted": time_value,
+                //         },
+                //         "callback": function(ret) {
+                //         if (!ret.error) {
+                //             console.log(ret.objects);
+                //         } else {
+                //             console.error(ret.error);
+                //         }
+                //         }
+                //     });
+                // }
+                const time_value = Date.now();
+                fiixCmmsClient.add({
+                         "className": "MeterReading",
+                         "fields": "intMeterReadingUnitsID, dblMeterReading, intAssetID, dtmDateSubmitted",
+                         "object": {
+                         "intMeterReadingUnitsID": readingUnits,
+                         "dblMeterReading": reading,
+                         "intAssetID": this.id,
+                         "dtmDateSubmitted": time_value,
+                         },
+                         "callback": function(ret) {
+                         if (!ret.error) {
+                             console.log(ret.objects);
+                         } else {
+                             console.error(ret.error);
+                         }
+                         }
+                     });
                 this.counter_reading=0;
             }
         }
