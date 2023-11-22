@@ -35,7 +35,9 @@ client.on('message', async function (topic, message) {
         const assetId = parseInt(assetsData[assetName].Asset_ID);
         if (assetName !== "PLC"){
             const high_limit_condition = parseFloat(assetsData[assetName].High_Limit);
-            const running = Boolean(assetsData[assetName].Running);
+            const runningString = assetsData[assetName].Running;
+            const running = runningString.split(' ')[0].toLowerCase();
+            
             if (!assetsMap[assetName]) {
             
                 try {
@@ -49,25 +51,31 @@ client.on('message', async function (topic, message) {
                 }
             }
             if(running !== true){
-                await assetsMap[assetName].turnOffline()
+                await assetsMap[assetName].turnOffline();
+            }else{
+                await assetsMap[assetName].turnOnline(running);
             }
             if(assetName == "Mixer") {
                 const mixer_vibration = parseFloat(assetsData[assetName].Vibration);
+               
                 const vibration_units = 584076;
                 await assetsMap[assetName].changeReading(mixer_vibration, vibration_units)
             }
             if(assetName == "Oven") {
                 const oven_temperature = parseFloat(assetsData[assetName].Temperature);
+                
                 const temperature_units = 587537;
                 await assetsMap[assetName].changeReading(oven_temperature, temperature_units);
             }
             if(assetName == "Packaging") {
                 const packaging_vibration = parseFloat(assetsData[assetName].Vibration);
+                
                 const vibration_units = 584076;
                 await assetsMap[assetName].changeReading(packaging_vibration, vibration_units);
             }
             if(assetName == "Labeler") {
                 const labeler_pressure = parseFloat(assetsData[assetName].Pressure);
+               
                 const pressure_units = 386290;
                 await assetsMap[assetName].changeReading (labeler_pressure, pressure_units)
             }
@@ -92,11 +100,11 @@ client.on('message', async function (topic, message) {
             
     }
 
-    console.log(`Received ${assetCount} new assets.`);
+
     const firstKey = Object.keys(assetsMap)[0];
     const firstValue = assetsMap[firstKey];
 
-    console.log(assetsMap);    
+  
 });
     
     // var asset = new assets.Asset(msg.id);

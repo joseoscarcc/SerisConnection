@@ -98,40 +98,23 @@ class Asset {
     }
 
     changeReading (reading, readingUnits) {
-        if(this.high_limit_condition>reading){
+        if(this.high_limit_condition<reading){
             this.counter_reading++;
             if(this.counter_reading>=10){
-                // const latestReading = this.latestReadings[readingUnits];
-                // if (!latestReading) {
-                //     throw new Error(`No latest reading found for units: ${readingUnits}`);
-                // }
+                const latestReading = this.latestReadings[readingUnits.toString()];
+                if (!latestReading) {
+                     console.log(`No latest reading found for units: ${readingUnits}`);
+                     return;
+                 }
 
-                // const now = Date.now();
-                // const oneHourInMilliseconds = 60 * 60 * 1000;
-                // if (now - latestReading.dtmDateSubmitted <= oneHourInMilliseconds) {
-                //     throw new Error(`Latest reading for units: ${readingUnits} was submitted less than an hour ago`);
-                // } else {
-                //     const time_value = Date.now();
-                //     fiixCmmsClient.add({
-                //         "className": "MeterReading",
-                //         "fields": "intMeterReadingUnitsID, dblMeterReading, intAssetID, dtmDateSubmitted",
-                //         "object": {
-                //         "intMeterReadingUnitsID": readingUnits,
-                //         "dblMeterReading": reading,
-                //         "intAssetID": this.id,
-                //         "dtmDateSubmitted": time_value,
-                //         },
-                //         "callback": function(ret) {
-                //         if (!ret.error) {
-                //             console.log(ret.objects);
-                //         } else {
-                //             console.error(ret.error);
-                //         }
-                //         }
-                //     });
-                // }
-                const time_value = Date.now();
-                fiixCmmsClient.add({
+                 const now = Date.now();
+                 const oneHourInMilliseconds = 5*60*1000;
+                 if (now - latestReading.dtmDateSubmitted <= oneHourInMilliseconds) {
+                    console.log(`Latest reading for units: ${readingUnits} was submitted less than an 5 min ago`);
+                    return;
+                 } else {
+                     const time_value = Date.now();
+                     fiixCmmsClient.add({
                          "className": "MeterReading",
                          "fields": "intMeterReadingUnitsID, dblMeterReading, intAssetID, dtmDateSubmitted",
                          "object": {
@@ -142,13 +125,17 @@ class Asset {
                          },
                          "callback": function(ret) {
                          if (!ret.error) {
-                             console.log(ret.objects);
+                             console.log("reading added to FIIX");
                          } else {
                              console.error(ret.error);
                          }
                          }
                      });
+                 }
+                
                 this.counter_reading=0;
+                this.fetchLatestReadings()
+                console.log(this.latestReadings)
             }
         }
     }
@@ -203,19 +190,20 @@ class Asset {
 
     turnOffline() {
         this.counter_offline++;
+        
         if(this.counter_offline>=10){
-            if(this.bolIsOnline = 1) {
+            if(this.bolIsOnline == 1) {
                 fiixCmmsClient.change({
                     "className": "Asset",
                     "changeFields": "bolIsOnline",
                     "object": {
-                    "id": this.bolIsOnline,
+                    "id": this.id,
                     "bolIsOnline": 0
                     },
                     "fields": "id, bolIsOnline",
                     "callback": function(ret) {
                         if (!ret.error) {
-                            console.log(ret.objects);
+                            console.log("online was changed in FIIX");
                         } else {
                             console.error(ret.error);
                         }
@@ -240,10 +228,44 @@ class Asset {
                     }
                   });
             }
+            this.fetchAssetData();
             this.counter_offline=0;
         }
     }
+
+    turnOnline(running) {
+
+        this.counter_offline++;
+        this.fetchAssetData();
+        if(this.counter_offline>=10){
+            
+            if (this.bolIsOnline === 0 && running === true) {
+               
+                    fiixCmmsClient.change({
+                        "className": "Asset",
+                        "changeFields": "bolIsOnline",
+                        "object": {
+                        "id": this.id,
+                        "bolIsOnline": 1
+                        },
+                        "fields": "id, bolIsOnline",
+                        "callback": function(ret) {
+                            if (!ret.error) {
+                                console.log("Offline was changed in FIIX");
+                            } else {
+                                console.error(ret.error);
+                            }
+                        }   
+                    });
+                this.fetchAssetData();
+                this.counter_offline=0;
+            
+            }
+            
+         }
+    }
 }
+
 
 module.exports = {
     Asset
