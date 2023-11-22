@@ -50,9 +50,10 @@ client.on('message', async function (topic, message) {
                     console.error(`Error while creating asset and fetching data: ${error}`);
                 }
             }
-            if(running !== true){
+            if(running !== true && assetsMap[assetName].bolIsOnline === 1 ){
                 await assetsMap[assetName].turnOffline();
-            }else{
+            }
+            if(running === true && assetsMap[assetName].bolIsOnline === 0 ){
                 await assetsMap[assetName].turnOnline(running);
             }
             if(assetName == "Mixer") {

@@ -51,8 +51,8 @@ class Asset {
         this.high_limit_condition = high_limit_condition;
     }
 
-    fetchAssetData() {
-        fiixCmmsClient.find({
+    async fetchAssetData() {
+        await fiixCmmsClient.find({
             "className": "Asset",
             "filters": [{"ql": "id = ?", "parameters": [this.id]}],
             "fields": "id, bolIsOnline, strName, strDescription, strMake, intUpdated",
@@ -72,8 +72,8 @@ class Asset {
         });
     }
 
-    fetchLatestReadings() {
-        fiixCmmsClient.find({
+    async fetchLatestReadings() {
+        await fiixCmmsClient.find({
             "className": "MeterReading",
             "filters": [{"ql": "intAssetID = ?", "parameters": [this.id]}],
             "fields": "id, intWorkOrderID, intSubmittedByUserID, intMeterReadingUnitsID, dblMeterReading, dv_intWorkOrderID, dv_intMeterReadingUnitsID, dv_intAssetID, dv_intSubmittedByUserID, intAssetID, dtmDateSubmitted",
@@ -97,7 +97,7 @@ class Asset {
         });
     }
 
-    changeReading (reading, readingUnits) {
+    async changeReading (reading, readingUnits) {
         if(this.high_limit_condition<reading){
             this.counter_reading++;
             if(this.counter_reading>=10){
@@ -114,7 +114,7 @@ class Asset {
                     return;
                  } else {
                      const time_value = Date.now();
-                     fiixCmmsClient.add({
+                     await fiixCmmsClient.add({
                          "className": "MeterReading",
                          "fields": "intMeterReadingUnitsID, dblMeterReading, intAssetID, dtmDateSubmitted",
                          "object": {
@@ -140,10 +140,10 @@ class Asset {
         }
     }
 
-    triggerEvent(event) {
+    async triggerEvent(event) {
         this.counter_event++;
         if(this.counter_event>=10){
-            fiixCmmsClient.find({
+            await fiixCmmsClient.find({
                 "className": "AssetEvent",
                 "filters": [{"ql": "intAssetID = ? AND intAssetEventTypeID = ?", "parameters": [this.id, event]}],
                 "fields": "id, dtmDateSubmitted, intAssetEventTypeID, intAssetID, intSubmittedByUserID, intWorkOrderID, strAdditionalDescription",
@@ -188,12 +188,12 @@ class Asset {
         }
     }
 
-    turnOffline() {
+    async turnOffline() {
         this.counter_offline++;
         
         if(this.counter_offline>=10){
-            if(this.bolIsOnline == 1) {
-                fiixCmmsClient.change({
+            if(this.bolIsOnline === 1) {
+                await fiixCmmsClient.change({
                     "className": "Asset",
                     "changeFields": "bolIsOnline",
                     "object": {
@@ -210,7 +210,7 @@ class Asset {
                     }   
                 });
                 const time_value = Date.now();
-                fiixCmmsClient.change({
+                await fiixCmmsClient.change({
                     "className": "AssetOfflineTracker",
                     "changeFields": "intReasonOfflineID, dtmOfflineFrom",
                     "object": {
@@ -233,15 +233,16 @@ class Asset {
         }
     }
 
-    turnOnline(running) {
+    async turnOnline(running) {
 
         this.counter_offline++;
-        this.fetchAssetData();
+        
         if(this.counter_offline>=10){
-            
+
+            this.fetchAssetData();
             if (this.bolIsOnline === 0 && running === true) {
                
-                    fiixCmmsClient.change({
+                    await fiixCmmsClient.change({
                         "className": "Asset",
                         "changeFields": "bolIsOnline",
                         "object": {
