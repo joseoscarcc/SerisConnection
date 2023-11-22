@@ -53,9 +53,7 @@ client.on('message', async function (topic, message) {
             if(running !== true && assetsMap[assetName].bolIsOnline === 1 ){
                 await assetsMap[assetName].turnOffline();
             }
-            if(running === true && assetsMap[assetName].bolIsOnline === 0 ){
-                await assetsMap[assetName].turnOnline(running);
-            }
+        
             if(assetName == "Mixer") {
                 const mixer_vibration = parseFloat(assetsData[assetName].Vibration);
                
