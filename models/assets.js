@@ -192,6 +192,7 @@ class Asset {
         this.counter_offline++;
         
         if(this.counter_offline>=10){
+            this.fetchAssetData();
             if(this.bolIsOnline === 1) {
                 await fiixCmmsClient.change({
                     "className": "Asset",

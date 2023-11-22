@@ -27,6 +27,18 @@ client.on('error', function (error) {
 
 const assetsMap = {};
 
+function convertStringToBoolean(str) {
+    const firstWord = str.split(' ')[0];
+    if(firstWord === 'True'){
+        theBolIS = true;
+    }
+    if(firstWord === 'False'){
+        theBolIS = false;
+    }
+  
+    return theBolIS;
+}
+
 client.on('message', async function (topic, message) {
     const assetsData = JSON.parse(message.toString());
     let assetCount = 0;
@@ -35,9 +47,10 @@ client.on('message', async function (topic, message) {
         const assetId = parseInt(assetsData[assetName].Asset_ID);
         if (assetName !== "PLC"){
             const high_limit_condition = parseFloat(assetsData[assetName].High_Limit);
-            const runningString = assetsData[assetName].Running;
-            const running = runningString.split(' ')[0].toLowerCase();
             
+            
+            const runningString = assetsData[assetName].Running;
+            const running = convertStringToBoolean(runningString);
             if (!assetsMap[assetName]) {
             
                 try {
@@ -50,7 +63,7 @@ client.on('message', async function (topic, message) {
                     console.error(`Error while creating asset and fetching data: ${error}`);
                 }
             }
-            if(running !== true && assetsMap[assetName].bolIsOnline === 1 ){
+            if(running !== true ){
                 await assetsMap[assetName].turnOffline();
             }
         
@@ -87,7 +100,8 @@ client.on('message', async function (topic, message) {
                         console.error(`Error while creating asset and fetching data: ${error}`);
                     }
             }
-            const Connected = Boolean(assetsData[assetName].Connected);
+            const connectedString = assetsData[assetName].Connected;
+            const Connected = convertStringToBoolean(connectedString);
             if( Connected !== true) {
                 if (assetsMap && assetsMap[assetName]) {
                     await assetsMap[assetName].triggerEvent(227146);
